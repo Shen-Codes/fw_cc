@@ -1,31 +1,49 @@
 import React, { useState } from 'react'
 
-const Form = ({state, setState}) => {
-	const [form, setForm] = useState({
-		description: "",
-		type: "",
-		amount: 0
-	})
+const initialState = {
+	description: "",
+	type: "asset",
+	amount: 0,
+	isNum: true,
+}
+
+const Form = () => {
+	const [form, setForm] = useState(initialState)
 
 	const handleChange = e => {
 		e.preventDefault();
-		const {name, value} = e.target;
-		setForm(prevState => ({
-			...prevState,
-			[name]: value
-		}));
+		let {name, value} = e.target;
+	
+		setForm(prevState => {
+			if(isNaN(value) && name === "amount"){
+				return {
+					...prevState,
+					[name]: value,
+					isNum: false
+				}
+			} else if (!isNaN(value) && name === "amount"){
+				return {
+					...prevState,
+					[name]: value,
+					isNum: true
+				}
+			}
+			return {
+				...prevState,
+				[name]: value
+			}
+		});
 	}
 
 	const handleSubmit = e => {
 		e.preventDefault();
-		const newState = state;
-		newState.push(form);
-		setState(newState);
+		console.log(form)
+		setForm(initialState)
 	}
 	
 	return (
 		<div>
-			<form onsubmit={handleSubmit}>
+			<form onSubmit={handleSubmit}>
 				<label>
 					Description:
 					<input 
@@ -33,11 +51,12 @@ const Form = ({state, setState}) => {
 						value={form.description} 
 						onChange={handleChange}
 						name="description"
+						required
 					/>
 				</label>
 				<label>
 					Type:
-					<select value={form.type} onChange={handleChange}>
+					<select value={form.type} onChange={handleChange} name="type">
 						<option value="asset">Asset</option>
 						<option value="liability">Liability</option>
 					</select>
@@ -49,8 +68,11 @@ const Form = ({state, setState}) => {
 						value={form.amount} 
 						onChange={handleChange}
 						name="amount"
+						required
 					/>
+					{!form.isNum && <span>must be a number</span> }
 				</label>
+				<button onSubmit={handleSubmit}>Submit</button>
 			</form>
 		</div>
 	)
