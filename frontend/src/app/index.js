@@ -2,7 +2,7 @@ import React, {useState} from 'react'
 import Form from '../form'
 import Table from '../table'
 
-const initialState = [{}];
+const initialState = [];
 
 const App = () => {
 	const [state, setState] = useState(initialState);

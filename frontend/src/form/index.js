@@ -15,10 +15,17 @@ const Form = ({state, setState}) => {
 			[name]: value
 		}));
 	}
+
+	const handleSubmit = e => {
+		e.preventDefault();
+		const newState = state;
+		newState.push(form);
+		setState(newState);
+	}
 	
 	return (
 		<div>
-			<form onsubmit={}>
+			<form onsubmit={handleSubmit}>
 				<label>
 					Description:
 					<input 
