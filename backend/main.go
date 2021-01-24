@@ -20,6 +20,23 @@ type Transaction struct {
 	Amount          int    `json:"Amount"`
 }
 
+func main() {
+	//a session must be initialized and passed to new service clienct in order for service calls to be made
+	sess := session.Must(session.NewSessionWithOptions(session.Options{
+		SharedConfigState: session.SharedConfigEnable,
+	}))
+
+	//initializing new DynamoDB client
+	dynaSvc := dynamodb.New(sess)
+
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", handleTransaction(*dynaSvc))
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		panic(err)
+	}
+}
+
 func handleTransaction(dynaSvc dynamodb.DynamoDB) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
@@ -37,6 +54,7 @@ func handleTransaction(dynaSvc dynamodb.DynamoDB) http.HandlerFunc {
 
 func getTransactions(dynaSvc dynamodb.DynamoDB) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		response, err := queryTransactions(dynaSvc)
 
 	})
 }
@@ -53,7 +71,7 @@ func postTransaction(dynaSvc dynamodb.DynamoDB) http.HandlerFunc {
 			return
 		}
 
-		//un-json's the request body
+		//un-json the request body
 		var transaction Transaction
 		err = json.Unmarshal(body, &transaction)
 		if err != nil {
@@ -86,19 +104,15 @@ func postTransaction(dynaSvc dynamodb.DynamoDB) http.HandlerFunc {
 	})
 }
 
-func main() {
-	//a session must be initialized and passed to new service clienct in order for service calls to be made
-	sess := session.Must(session.NewSessionWithOptions(session.Options{
-		SharedConfigState: session.SharedConfigEnable,
-	}))
-
-	//initializing new DynamoDB client
-	dynaSvc := dynamodb.New(sess)
-
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", handleTransaction(*dynaSvc))
-	err := http.ListenAndServe(":8080", nil)
-	if err != nil {
-		panic(err)
+func queryTransactions(dynaSvc dynamodb.DynamoDB) ([]map[string]*dynamodb.AttributeValue, error) {
+	var queryInput = &dynamodb.QueryInput{
+		TableName: aws.String("Transactions"),
+		IndexName: aws.String("TransactionType"),
 	}
+	var response, err = dynaSvc.Query(queryInput)
+	if err != nil {
+		return nil, err
+	}
+
+	return response.Items, nil
 }
