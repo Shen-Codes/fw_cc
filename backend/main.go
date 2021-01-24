@@ -55,7 +55,23 @@ func handleTransaction(dynaSvc dynamodb.DynamoDB) http.HandlerFunc {
 func getTransactions(dynaSvc dynamodb.DynamoDB) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		response, err := queryTransactions(dynaSvc)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			fmt.Printf("%v", err)
+			return
+		}
 
+		jsonBytes, err := json.Marshal(response)
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte(err.Error()))
+			fmt.Printf("%v", err)
+			return
+		}
+
+		w.Header().Add("content-type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write(jsonBytes)
 	})
 }
 
