@@ -82,7 +82,7 @@ const Table = () => {
 					<tbody>
 						{
 							table.map((item, i) => {
-								if (item.description === "total" || item.description === "assets" || item.description === "assets"){
+								if (item.description === "total" || item.description === "assets" || item.description === "liabilities"){
 									return
 								}
 								return(
