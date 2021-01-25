@@ -1,0 +1,8 @@
+#form {
+  display: flex;
+  justify-content: space-around;
+}
+
+#form label {
+  padding: 10px;
+}

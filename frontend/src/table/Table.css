@@ -1,0 +1,20 @@
+#table {
+  display: flex;
+  margin-top: 20px;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#table table {
+  width: 50vw;
+  justify-content: space-evenly;
+}
+
+#refresh-button {
+  margin-top: 20px;
+}
+
+#table thead {
+  text-align: left;
+}

@@ -1,10 +1,10 @@
 import React, { useState } from 'react'
 import { GetRequest, PostRequest } from '../api/apis'
+import './Form.css'
 
 const initialState = {
-	id: 0,
 	description: "",
-	type: "asset",
+	transactiontype: "asset",
 	amount: 0,
 	isNum: true,
 }
@@ -17,6 +17,7 @@ const Form = () => {
 		let {name, value} = e.target;
 	
 		setForm(prevState => {
+			//some simple form validation
 			if(isNaN(value) && name === "amount"){
 				return {
 					...prevState,
@@ -37,15 +38,32 @@ const Form = () => {
 		});
 	}
 
-	const handleSubmit = e => {
+	const handleSubmit = async e => {
 		e.preventDefault();
-		transaction = form;
-		data = GetRequest("localhost:5000/")
-		PostRequest(transaction, "localhost:5000/")
+		let transaction = form;
+		//remove is num so as not to post as a property
+		delete transaction.isNum;
+		let length;
+		//current kludgy way of getting an id, plan on implementing uuid in next iteration
+		await GetRequest("http://localhost:5000/")
+		.then(result => {
+			length = parseInt(Math.max(...result.map(item => item.id)))
+		})
+	
+
+		transaction = {
+			id: length + 1,
+			...transaction,
+			//need to parse to int since backend takes int type on amount property of transaction struct
+			amount: parseInt(transaction.amount)
+		}
+
+		await PostRequest(transaction, "http://localhost:5000/")
+		setForm(initialState)
 	}
 	
 	return (
-		<div>
+		<div id="form">
 			<form onSubmit={handleSubmit}>
 				<label>
 					Description:
@@ -59,7 +77,7 @@ const Form = () => {
 				</label>
 				<label>
 					Type:
-					<select value={form.type} onChange={handleChange} name="type">
+					<select value={form.transactiontype} onChange={handleChange} name="transactiontype">
 						<option value="asset">Asset</option>
 						<option value="liability">Liability</option>
 					</select>

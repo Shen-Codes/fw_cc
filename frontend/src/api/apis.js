@@ -4,7 +4,9 @@ export const PostRequest = async (transaction, url) => {
 		headers: {'Content-Type': 'application/json'},
 		body: JSON.stringify(transaction)
 	};
-	await fetch(url, requestOptions);
+	const response = await fetch(url, requestOptions);
+	const data = response.json();
+	return data
 }
 
 export const GetRequest = async (url) => {
@@ -19,5 +21,7 @@ export const DeleteRequest = async (id, url) => {
 		headers: {'Content-Type': 'application/json'},
 		body: JSON.stringify(id)
 	}
-	await fetch(url, requestOptions);
+	const response = await fetch(url, requestOptions);
+	const data = response.json();
+	return data
 }

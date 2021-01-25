@@ -15,7 +15,7 @@ import (
 
 //Transaction struct type for json response/request
 type Transaction struct {
-	ID              string `dynamodbav:"ID" json:"id"`
+	ID              int    `dynamodbav:"ID" json:"id"`
 	Description     string `dynamodbav:"Description" json:"description"`
 	TransactionType string `dynamodbav:"TransactionType" json:"transactiontype"`
 	Amount          int    `dynamodbav:"Amount" json:"amount"`
@@ -46,6 +46,10 @@ func main() {
 
 func handleTransaction(dynaSvc dynamodb.DynamoDB) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers", "Accept, Content-Type, Content-Length, Accept-Encoding, X-CSRF-Token, Authorization")
+
 		switch r.Method {
 		case "GET":
 			getTransactions(dynaSvc, w, r)
@@ -82,19 +86,19 @@ func getTransactions(dynaSvc dynamodb.DynamoDB, w http.ResponseWriter, r *http.R
 		unMarshList = append(unMarshList, unMarsh)
 	}
 
-	total := calculateTotal(unMarshList)
+	totalStruct, assetsStruct, liabilitiesStruct := calculate(unMarshList)
+
+	unMarshList = append(unMarshList, totalStruct, assetsStruct, liabilitiesStruct)
 	jsonBytes, _ := json.Marshal(unMarshList)
-	totalBytes, _ := json.Marshal(total)
 
 	w.Header().Add("content-type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(jsonBytes)
-	w.Write(totalBytes)
-
 }
 
 func postTransaction(dynaSvc dynamodb.DynamoDB, w http.ResponseWriter, r *http.Request) {
 	item := marshalTransaction(w, r)
+
 	tableName := "Transactions"
 
 	//create dyDB input format
@@ -109,15 +113,20 @@ func postTransaction(dynaSvc dynamodb.DynamoDB, w http.ResponseWriter, r *http.R
 		return
 	}
 
-	w.WriteHeader(http.StatusOK)
+	getTransactions(dynaSvc, w, r)
 }
 
 func deleteTransaction(dynaSvc dynamodb.DynamoDB, w http.ResponseWriter, r *http.Request) {
 	item := marshalTransaction(w, r)
+
+	//pull out just the id to pass to DeleteItemInput
+	key := map[string]*dynamodb.AttributeValue{
+		"ID": item["ID"],
+	}
 	tableName := "Transactions"
 
 	input := &dynamodb.DeleteItemInput{
-		Key:       item,
+		Key:       key,
 		TableName: aws.String(tableName),
 	}
 
@@ -125,8 +134,11 @@ func deleteTransaction(dynaSvc dynamodb.DynamoDB, w http.ResponseWriter, r *http
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
+		fmt.Printf("%v", err)
 		return
 	}
+
+	getTransactions(dynaSvc, w, r)
 }
 
 func marshalTransaction(w http.ResponseWriter, r *http.Request) map[string]*dynamodb.AttributeValue {
@@ -142,13 +154,12 @@ func marshalTransaction(w http.ResponseWriter, r *http.Request) map[string]*dyna
 	//un-json the request body
 	var transaction Transaction
 	json.Unmarshal(body, &transaction)
-
+	fmt.Printf("%v", transaction)
 	//create map of transaction of type *dyDBattribute
 	item, err := dynamodbattribute.MarshalMap(transaction)
 	if err != nil {
 		fmt.Println("Got error marshalling new movie item:")
 		fmt.Println(err.Error())
-		os.Exit(1)
 	}
 
 	return item
@@ -168,15 +179,27 @@ func queryTransactions(dynaSvc dynamodb.DynamoDB) ([]map[string]*dynamodb.Attrib
 	return response.Items, nil
 }
 
-func calculateTotal(list []Transaction) int {
-	var total int
+func calculate(list []Transaction) (Transaction, Transaction, Transaction) {
+	var total, assets, liabilities int
 	for _, item := range list {
 		if item.TransactionType == "asset" {
 			total += item.Amount
+			assets += item.Amount
 		} else {
 			total -= item.Amount
+			liabilities += item.Amount
 		}
 	}
 
-	return total
+	totalStruct := Transaction{
+		0, "total", "neither", total,
+	}
+	assetsStruct := Transaction{
+		0, "assets", "neither", assets,
+	}
+	liabilitiesStruct := Transaction{
+		0, "liabilities", "neither", liabilities,
+	}
+
+	return totalStruct, assetsStruct, liabilitiesStruct
 }
