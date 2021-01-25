@@ -23,7 +23,7 @@ type Transaction struct {
 func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "5000"
+		port = "8080"
 	}
 	//a session must be initialized and passed to new service clienct in order for service calls to be made
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
@@ -36,7 +36,7 @@ func main() {
 	http.HandleFunc("/", handleTransaction(*dynaSvc))
 	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
-		panic(err)
+		w.Write([]byte(err.Error()))
 	}
 }
 
@@ -61,7 +61,7 @@ func getTransactions(dynaSvc dynamodb.DynamoDB, w http.ResponseWriter, r *http.R
 	response, err := queryTransactions(dynaSvc)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
-		fmt.Printf("%v", err)
+		w.Write([]byte(err.Error()))
 		return
 	}
 
