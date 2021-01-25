@@ -1,6 +1,8 @@
 import React, { useState } from 'react'
+import { GetRequest, PostRequest } from '../api/apis'
 
 const initialState = {
+	id: 0,
 	description: "",
 	type: "asset",
 	amount: 0,
@@ -37,8 +39,9 @@ const Form = () => {
 
 	const handleSubmit = e => {
 		e.preventDefault();
-		console.log(form)
-		setForm(initialState)
+		transaction = form;
+		data = GetRequest("localhost:5000/")
+		PostRequest(transaction, "localhost:5000/")
 	}
 	
 	return (
