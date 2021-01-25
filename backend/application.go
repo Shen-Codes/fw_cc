@@ -21,6 +21,10 @@ type Transaction struct {
 }
 
 func main() {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "5000"
+	}
 	//a session must be initialized and passed to new service clienct in order for service calls to be made
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
@@ -31,7 +35,7 @@ func main() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", handleTransaction(*dynaSvc))
-	err := http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		panic(err)
 	}
