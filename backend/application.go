@@ -53,6 +53,9 @@ func handleTransaction(dynaSvc dynamodb.DynamoDB) http.HandlerFunc {
 		case "POST":
 			postTransaction(dynaSvc, w, r)
 			return
+		case "DELETE":
+			deleteTransaction(dynaSvc, w, r)
+			return
 		default:
 			// TODO
 			return
@@ -61,7 +64,6 @@ func handleTransaction(dynaSvc dynamodb.DynamoDB) http.HandlerFunc {
 }
 
 func getTransactions(dynaSvc dynamodb.DynamoDB, w http.ResponseWriter, r *http.Request) {
-
 	response, err := queryTransactions(dynaSvc)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -92,6 +94,42 @@ func getTransactions(dynaSvc dynamodb.DynamoDB, w http.ResponseWriter, r *http.R
 }
 
 func postTransaction(dynaSvc dynamodb.DynamoDB, w http.ResponseWriter, r *http.Request) {
+	item := marshalTransaction(w, r)
+	tableName := "Transactions"
+
+	//create dyDB input format
+	input := &dynamodb.PutItemInput{
+		Item:      item,
+		TableName: aws.String(tableName),
+	}
+	_, err := dynaSvc.PutItem(input)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+}
+
+func deleteTransaction(dynaSvc dynamodb.DynamoDB, w http.ResponseWriter, r *http.Request) {
+	item := marshalTransaction(w, r)
+	tableName := "Transactions"
+
+	input := &dynamodb.DeleteItemInput{
+		Key:       item,
+		TableName: aws.String(tableName),
+	}
+
+	_, err := dynaSvc.DeleteItem(input)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+}
+
+func marshalTransaction(w http.ResponseWriter, r *http.Request) map[string]*dynamodb.AttributeValue {
 	//parse out body into []byte type
 	body, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
@@ -99,19 +137,11 @@ func postTransaction(dynaSvc dynamodb.DynamoDB, w http.ResponseWriter, r *http.R
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
 		fmt.Printf("%v", err)
-		return
 	}
 
 	//un-json the request body
 	var transaction Transaction
-	err = json.Unmarshal(body, &transaction)
-	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
-		return
-	}
-
-	tableName := "Transactions"
+	json.Unmarshal(body, &transaction)
 
 	//create map of transaction of type *dyDBattribute
 	item, err := dynamodbattribute.MarshalMap(transaction)
@@ -121,19 +151,7 @@ func postTransaction(dynaSvc dynamodb.DynamoDB, w http.ResponseWriter, r *http.R
 		os.Exit(1)
 	}
 
-	//create dyDB input format
-	input := &dynamodb.PutItemInput{
-		Item:      item,
-		TableName: aws.String(tableName),
-	}
-	_, err = dynaSvc.PutItem(input)
-	if err != nil {
-		fmt.Println("Got error calling PutItem:")
-		fmt.Println(err.Error())
-		os.Exit(1)
-	}
-
-	w.WriteHeader(http.StatusOK)
+	return item
 }
 
 func queryTransactions(dynaSvc dynamodb.DynamoDB) ([]map[string]*dynamodb.AttributeValue, error) {
