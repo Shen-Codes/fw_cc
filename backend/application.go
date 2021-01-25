@@ -33,8 +33,7 @@ func main() {
 	//initializing new DynamoDB client
 	dynaSvc := dynamodb.New(sess)
 
-	mux := http.NewServeMux()
-	mux.HandleFunc("/", handleTransaction(*dynaSvc))
+	http.HandleFunc("/", handleTransaction(*dynaSvc))
 	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
 		panic(err)
