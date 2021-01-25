@@ -23,11 +23,14 @@ type Transaction struct {
 func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "8080"
+		port = "5000"
 	}
 	//a session must be initialized and passed to new service clienct in order for service calls to be made
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
 		SharedConfigState: session.SharedConfigEnable,
+		Config: aws.Config{
+			Region: aws.String("us-east-1"),
+		},
 	}))
 
 	//initializing new DynamoDB client
@@ -36,7 +39,7 @@ func main() {
 	http.HandleFunc("/", handleTransaction(*dynaSvc))
 	err := http.ListenAndServe(":"+port, nil)
 	if err != nil {
-		w.Write([]byte(err.Error()))
+		panic(err)
 	}
 }
 
