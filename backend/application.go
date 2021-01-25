@@ -15,9 +15,10 @@ import (
 
 //Transaction struct type for json response/request
 type Transaction struct {
-	Description     string `json:"description"`
-	TransactionType string `json:"transactiontype"`
-	Amount          int    `json:"Amount"`
+	ID              string `dynamodbav:"ID" json:"id"`
+	Description     string `dynamodbav:"Description" json:"description"`
+	TransactionType string `dynamodbav:"TransactionType" json:"transactiontype"`
+	Amount          int    `dynamodbav:"Amount" json:"amount"`
 }
 
 func main() {
