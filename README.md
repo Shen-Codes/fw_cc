@@ -10,8 +10,8 @@ Here is a list of improvements and features I would like to add
 
 ##### Additional Improvements and Features
 
-- [] backend data validation
-- [] auto refresh of transactions list
-- [] split out api calls into separate package
-- [] delete and post confirmation
-- [] prettify the numbers
+- [ ] backend data validation
+- [ ] auto refresh of transactions list
+- [ ] split out api calls into separate package
+- [ ] delete and post confirmation
+- [ ] prettify the numbers
