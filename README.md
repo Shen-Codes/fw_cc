@@ -1,12 +1,6 @@
-### Facet Wealth Coding Challenge
+### Coding Challenge
 
-Hi Ben, Hi Paul,
-
-Here is the the repo
-
-In the email I sent, there should be a video giving a rundown of the video.
-
-Here is a list of improvements and features I would like to add
+Frontend with React connected to Go backend hosted on AWS EC2 (at least attempted to host on EC2)
 
 ##### Additional Improvements and Features
 
@@ -15,3 +9,10 @@ Here is a list of improvements and features I would like to add
 - [ ] split out api calls into separate package
 - [ ] delete and post confirmation
 - [ ] prettify the numbers
+- [ ] edit individual transactions
+
+##### Stretch Goals
+
+- [ ] double entry recording
+- [ ] authentication
+- [ ] drop down for assets, liabilities, equity after double entry is implemented
