@@ -24,7 +24,7 @@ type Transaction struct {
 func main() {
 	port := os.Getenv("PORT")
 	if port == "" {
-		port = "80"
+		port = "5000"
 	}
 	//a session must be initialized and passed to new service clienct in order for service calls to be made
 	sess := session.Must(session.NewSessionWithOptions(session.Options{
