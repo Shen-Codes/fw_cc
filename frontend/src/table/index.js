@@ -2,6 +2,10 @@ import React, { useEffect, useState } from 'react'
 import { DeleteRequest, GetRequest} from '../api/apis';
 import './Table.css'
 
+
+const url = "http://FwCc-env.eba-qt7cuybt.us-east-1.elasticbeanstalk.com/";
+const localhost = "http://localhost:5000/";
+
 const Table = () => {
 	const [table, setTable] = useState([
 		{
@@ -27,7 +31,7 @@ const Table = () => {
 	useEffect(() =>{
 		//not sure what race conditions are, but the warning said do it like this to prevent it
 		const fetchData = async () => {
-			await GetRequest("http://localhost:5000/")
+			await GetRequest(url)
 			.then(response => setTable(response))
 		};
 		fetchData();
@@ -36,13 +40,13 @@ const Table = () => {
 	const handleDelete = async (item, e) => {
 		e.preventDefault();
 		
-		await DeleteRequest(item, "http://localhost:5000/")
+		await DeleteRequest(item, url)
 		.then(response => setTable(response))
 	}
 
 	const handleRefresh = async e => {
 		e.preventDefault();
-		await GetRequest("http://localhost:5000/")
+		await GetRequest(url)
 			.then(response => setTable(response))
 	}
 
@@ -82,7 +86,7 @@ const Table = () => {
 					<tbody>
 						{
 							table.map((item, i) => {
-								if (item.description === "total" || item.description === "assets" || item.description === "assets"){
+								if (item.description === "total" || item.description === "assets" || item.description === "liabilities"){
 									return
 								}
 								return(
