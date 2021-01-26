@@ -9,6 +9,9 @@ const initialState = {
 	isNum: true,
 }
 
+const url = "http://FwCc-env.eba-qt7cuybt.us-east-1.elasticbeanstalk.com/";
+const localhost = "http://localhost:5000/";
+
 const Form = () => {
 	const [form, setForm] = useState(initialState)
 
@@ -45,7 +48,7 @@ const Form = () => {
 		delete transaction.isNum;
 		let length;
 		//current kludgy way of getting an id, plan on implementing uuid in next iteration
-		await GetRequest("http://localhost:5000/")
+		await GetRequest("url")
 		.then(result => {
 			length = parseInt(Math.max(...result.map(item => item.id)))
 		})
@@ -58,7 +61,7 @@ const Form = () => {
 			amount: parseInt(transaction.amount)
 		}
 
-		await PostRequest(transaction, "http://localhost:5000/")
+		await PostRequest(transaction, "url")
 		setForm(initialState)
 	}
 	
