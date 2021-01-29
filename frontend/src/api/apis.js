@@ -1,26 +1,12 @@
-export const PostRequest = async (transaction, url) => {
-	const requestOptions = {
-		method: 'POST',
-		headers: {'Content-Type': 'application/json'},
-		body: JSON.stringify(transaction)
-	};
-	const response = await fetch(url, requestOptions);
-	const data = response.json();
-	return data
-}
+import { url } from "../constants/constants";
 
-export const GetRequest = async (url) => {
-	const response = await fetch(url);
-	const data = response.json();
-	return data;
-}
-
-export const DeleteRequest = async (id, url) => {
+export const Request = async (item, method) => {
 	const requestOptions = {
-		method: 'DELETE',
+		method: `${method}`,
 		headers: {'Content-Type': 'application/json'},
-		body: JSON.stringify(id)
+		body: JSON.stringify(item)
 	}
+	
 	const response = await fetch(url, requestOptions);
 	const data = response.json();
 	return data

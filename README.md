@@ -4,12 +4,7 @@ Frontend with React connected to Go backend hosted on AWS EC2 (at least attempte
 
 ##### Additional Improvements and Features
 
-- [ ] backend data validation
-- [ ] auto refresh of transactions list
-- [ ] split out api calls into separate package
-- [ ] delete and post confirmation
-- [ ] prettify the numbers
-- [ ] edit individual transactions
+- [x] lift state up to root with context and useReducer
 
 ##### Stretch Goals
 
