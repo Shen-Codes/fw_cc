@@ -1,8 +1,8 @@
-import React, {createContext, useEffect, useReducer} from 'react';
-import { CHANGE_HANDLER, SEND_REQUEST } from '../constants/constants';
+import React, {createContext,useReducer} from 'react';
+import { CHANGE_HANDLER, SET_TABLE } from '../constants/constants';
 import { reducer } from './reducer';
 
-const TableContext = createContext();
+export const TableContext = createContext();
 
 const initialState = {
 	form: {
@@ -14,22 +14,14 @@ const initialState = {
 	table: []
 };
 
-export const TableContext = props => {
+export const TableContextComp = props => {
 
 	const [table, dispatch] = useReducer(reducer, initialState)
 
-	useEffect(() => {
+	const setTable = table => {
 		dispatch({
-			type: SEND_REQUEST,
-			method: "GET",
-		})
-	}, [])
-
-	const sendRequest = (method, transaction) => {
-		dispatch({
-			type: SEND_REQUEST,
-			method: `${method}`,
-			payload: transaction
+			type: SET_TABLE,
+			payload: table,
 		})
 	}
 
@@ -42,7 +34,7 @@ export const TableContext = props => {
 			id: id,
 			name: name,
 			value: value,
-			tableProp, tableProp
+			tableProp: tableProp
 		})	
 	}
 
@@ -50,7 +42,7 @@ export const TableContext = props => {
 	return(
 		<TableContext.Provider value={{
 			table: table,
-			sendRequest: sendRequest,
+			setTable: setTable,
 			changeHandler: changeHandler
 		}}>
 			{props.children}

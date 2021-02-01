@@ -1,17 +1,21 @@
-import { Request } from "../api/apis";
+
+import { CHANGE_HANDLER,  SET_TABLE } from "../constants/constants";
 
 
-const request = async (transaction, method, state) => {
-	const table = await Request(transaction, method).then(response => response);
+const setTable = (payload, state) => {	
+	console.log(payload, state)
+	
 	return {
 		...state,
-		table: table
+		table: payload
 	}
 }
 
 const changeHandler = ({tableProp, id, name, value}, state) => {
 
-	if (tableProp = "form") {
+	if (tableProp === "form") {
+		value = name === "amount" ? value = parseInt(value) : value
+		console.log(typeof(value))
 		return {
 			...state,
 			form: {
@@ -27,7 +31,7 @@ const changeHandler = ({tableProp, id, name, value}, state) => {
 					[name]: value
 				}
 			} else {
-					return;
+					return item
 				}
 		})
 
@@ -40,8 +44,8 @@ const changeHandler = ({tableProp, id, name, value}, state) => {
 
 export const reducer = (state, action) => {
 	switch(action.type) {
-		case SEND_REQUEST:
-			return request(action.payload)
+		case SET_TABLE:
+			return setTable(action.payload, state)
 		case CHANGE_HANDLER:
 			return changeHandler(action, state)
 		default:

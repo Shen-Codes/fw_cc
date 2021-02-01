@@ -1,16 +1,16 @@
 import React from 'react'
 import Form from '../form'
 import Table from '../table'
-import { TableContext } from '../context/tablecontext'
+import { TableContextComp } from '../context/tablecontext'
 
 
 const App = () => {
 	return (
 		<div>
-			<TableContext>
+			<TableContextComp>
 				<Form />
 				<Table />
-			</TableContext>
+			</TableContextComp>
 		</div>
 	);
 }
